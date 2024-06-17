@@ -18,7 +18,14 @@ import { useEffect, useState } from 'react';
 import { getProgressIcon } from '@raycast/utils';
 import { z } from 'zod';
 import * as store from './store';
-import { readDataFromQRCodeOnScreen, getCurrentSeconds, splitStrToParts, ScanType, parseUrl } from './utils';
+import {
+  readDataFromQRCodeOnScreen,
+  getCurrentSeconds,
+  splitStrToParts,
+  ScanType,
+  parseUrl,
+  getPrioTag,
+} from './utils';
 import { TOKEN_TIME, generateToken } from './totp';
 import { extractAccountsFromMigrationUrl } from './google-authenticator';
 import type { ItemAccessory } from './types';
@@ -160,27 +167,6 @@ export default () => {
     return () => clearInterval(interval);
   }, []);
 
-  const positiveColor = '#050505'; // '#288056';
-  const negativeColor = '#050505'; // '#802828';
-  const getPrioColor = (prio: number) => {
-    if (prio > 0) return positiveColor;
-    if (prio < 0) return negativeColor;
-  };
-
-  const getPrioIcon = (prio: number) => {
-    if (prio > 0) return { source: Icon.ChevronUp, tintColor: positiveColor };
-    if (prio < 0) return { source: Icon.ChevronDown, tintColor: negativeColor };
-  };
-
-  const getPrioTag = (prio?: number): ItemAccessory => {
-    if (!prio) return {};
-    return {
-      tag: { value: Math.abs(prio).toString(), color: getPrioColor(prio) },
-      icon: getPrioIcon(prio),
-      tooltip: `Priority: ${prio}`,
-    };
-  };
-
   return (
     <List isLoading={loading}>
       <List.Section title="Accounts">
@@ -196,7 +182,7 @@ export default () => {
               {
                 icon: { source: getProgressIcon(timer / TOKEN_TIME), tintColor: getProgressColor() },
                 text: `${timer}s`,
-                },
+              },
             ]}
             actions={
               <ActionPanel>
