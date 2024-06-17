@@ -21,6 +21,10 @@ import { readDataFromQRCodeOnScreen, getCurrentSeconds, splitStrToParts, ScanTyp
 import { TOKEN_TIME, generateToken } from './totp';
 import { extractAccountsFromMigrationUrl } from './google-authenticator';
 
+// P0: change order
+// P0: insert to focused input
+// P3: alias, search by alias
+
 type Preferences = {
   passwordVisibility?: boolean;
 };
