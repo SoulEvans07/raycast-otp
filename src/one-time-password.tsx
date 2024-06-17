@@ -192,7 +192,7 @@ export default () => {
                   title="Remove Account"
                   icon={Icon.Trash}
                   style={Action.Style.Destructive}
-                  shortcut={{ modifiers: ['cmd'], key: 'delete' }}
+                  shortcut={{ modifiers: ['cmd'], key: 'backspace' }}
                   onAction={() => handleRemoveAccount(account)}
                 />
                 <Action
@@ -239,7 +239,6 @@ export default () => {
                 <Action.Push
                   title="Enter a Setup Key"
                   icon={Icon.Keyboard}
-                  shortcut={{ modifiers: ['cmd'], key: 'enter' }}
                   target={<SetupKey onSubmit={handleFormSubmit} />}
                 />
                 <Action
