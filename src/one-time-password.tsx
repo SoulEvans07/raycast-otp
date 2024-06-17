@@ -22,8 +22,6 @@ import { readDataFromQRCodeOnScreen, getCurrentSeconds, splitStrToParts, ScanTyp
 import { TOKEN_TIME, generateToken } from './totp';
 import { extractAccountsFromMigrationUrl } from './google-authenticator';
 
-// P3: order by prio
-
 type Preferences = {
   passwordVisibility?: boolean;
 };
