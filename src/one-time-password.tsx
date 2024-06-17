@@ -270,7 +270,11 @@ type SetupKeyProps = {
   prio?: string;
 };
 
-const Prio = z.coerce.number().optional();
+const Prio = z.coerce
+  .number()
+  .transform((val) => Math.floor(val))
+  .pipe(z.number().int())
+  .optional();
 
 function validatePrio(prev?: string, newPrio?: string) {
   if (newPrio === undefined || newPrio === '') return undefined;
