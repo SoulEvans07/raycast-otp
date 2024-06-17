@@ -5,9 +5,6 @@
   "description": "Generate time-based one-time passwords",
   "icon": "icon.png",
   "author": "lachero",
-  "contributors": [
-    "soulevans07"
-  ],
   "categories": [
     "Security",
     "Productivity"
