@@ -173,6 +173,7 @@ export default () => {
         {accounts.map((account, i) => (
           <List.Item
             key={i}
+            icon={{ source: Icon.Key, tintColor: '#050505' }}
             title={account.name}
             subtitle={displayToken(account.secret)}
             keywords={[account.issuer ?? '', account.name]}
