@@ -21,7 +21,6 @@ import { readDataFromQRCodeOnScreen, getCurrentSeconds, splitStrToParts, ScanTyp
 import { TOKEN_TIME, generateToken } from './totp';
 import { extractAccountsFromMigrationUrl } from './google-authenticator';
 
-// P0: change order
 // P0: insert to focused input
 // P3: alias, search by alias
 
@@ -164,92 +163,95 @@ export default () => {
 
   return (
     <List isLoading={loading}>
-      <List.Section title="New">
-        <List.Item
-          title={'Create new'}
-          subtitle={'Create a new one-time password'}
-          icon={Icon.Plus}
-          accessories={
-            !qrCodeScanType
-              ? [
-                  {
-                    icon: Icon.Camera,
-                    tag: {
-                      value: 'Scan QR',
-                      color: '#ded260',
-                    },
-                  },
-                  {
-                    icon: Icon.Keyboard,
-                    tag: 'Enter Setup Key',
-                  },
-                ]
-              : qrCodeScanType === 'scan'
-              ? [{ text: 'Scanning QR Code...' }]
-              : [{ text: 'Select a QR Code' }]
-          }
-          actions={
-            <ActionPanel>
-              <Action title="Scan a QR Code" icon={Icon.Camera} onAction={() => scanQRCode('scan')} />
-              <Action.Push
-                title="Enter a Setup Key"
-                icon={Icon.Keyboard}
-                shortcut={{ modifiers: ['cmd'], key: 'enter' }}
-                target={<SetupKey onSubmit={handleFormSubmit} />}
-              />
-              <Action
-                title="Select a QR Code"
-                icon={Icon.Camera}
-                shortcut={{ modifiers: ['cmd'], key: 'i' }}
-                onAction={() => scanQRCode('select')}
-              />
-            </ActionPanel>
-          }
-        />
+      <List.Section title="Accounts">
+        {accounts.map((account, i) => (
+          <List.Item
+            key={i}
+            title={account.name}
+            subtitle={displayToken(account.secret)}
+            keywords={[account.issuer ?? '', account.name]}
+            accessories={[
+              account.issuer ? { tag: account.issuer } : {},
+              {
+                icon: { source: getProgressIcon(timer / TOKEN_TIME), tintColor: getProgressColor() },
+                text: `${timer}s`,
+              },
+            ]}
+            actions={
+              <ActionPanel>
+                <Action.CopyToClipboard content={getCopyToClipboardContent(account.secret)} />
+                <Action.Push
+                  title="Edit Account"
+                  icon={Icon.Pencil}
+                  target={
+                    <SetupKey id={account.id} name={account.name} secret={account.secret} onSubmit={handleFormSubmit} />
+                  }
+                />
+                <Action
+                  title="Remove Account"
+                  icon={Icon.Trash}
+                  style={Action.Style.Destructive}
+                  shortcut={{ modifiers: ['cmd'], key: 'delete' }}
+                  onAction={() => handleRemoveAccount(account)}
+                />
+                <Action
+                  title={`${preferences.passwordVisibility ? 'Hide' : 'Show'} Password`}
+                  icon={preferences.passwordVisibility ? Icon.EyeDisabled : Icon.Eye}
+                  onAction={() => {
+                    openExtensionPreferences();
+                    popToRoot();
+                  }}
+                />
+              </ActionPanel>
+            }
+          />
+        ))}
       </List.Section>
-
-      {accounts.map((account, i) => (
-        <List.Item
-          key={i}
-          title={account.name}
-          subtitle={displayToken(account.secret)}
-          keywords={[account.issuer ?? '', account.name]}
-          accessories={[
-            account.issuer ? { tag: account.issuer } : {},
-            {
-              icon: { source: getProgressIcon(timer / TOKEN_TIME), tintColor: getProgressColor() },
-              text: `${timer}s`,
-            },
-          ]}
-          actions={
-            <ActionPanel>
-              <Action.CopyToClipboard content={getCopyToClipboardContent(account.secret)} />
-              <Action.Push
-                title="Edit Account"
-                icon={Icon.Pencil}
-                target={
-                  <SetupKey id={account.id} name={account.name} secret={account.secret} onSubmit={handleFormSubmit} />
-                }
-              />
-              <Action
-                title="Remove Account"
-                icon={Icon.Trash}
-                style={Action.Style.Destructive}
-                shortcut={{ modifiers: ['cmd'], key: 'delete' }}
-                onAction={() => handleRemoveAccount(account)}
-              />
-              <Action
-                title={`${preferences.passwordVisibility ? 'Hide' : 'Show'} Password`}
-                icon={preferences.passwordVisibility ? Icon.EyeDisabled : Icon.Eye}
-                onAction={() => {
-                  openExtensionPreferences();
-                  popToRoot();
-                }}
-              />
-            </ActionPanel>
-          }
-        />
-      ))}
+      {!loading && ( // NOTE: defers rendering so accounts are in focus
+        <List.Section title="New">
+          <List.Item
+            title={'Create new'}
+            subtitle={'Create a new one-time password'}
+            icon={Icon.Plus}
+            accessories={
+              !qrCodeScanType
+                ? [
+                    {
+                      icon: Icon.Camera,
+                      tag: {
+                        value: 'Scan QR',
+                        color: '#ded260',
+                      },
+                    },
+                    {
+                      icon: Icon.Keyboard,
+                      tag: 'Enter Setup Key',
+                    },
+                  ]
+                : qrCodeScanType === 'scan'
+                ? [{ text: 'Scanning QR Code...' }]
+                : [{ text: 'Select a QR Code' }]
+            }
+            actions={
+              <ActionPanel>
+                <Action title="Scan a QR Code" icon={Icon.Camera} onAction={() => scanQRCode('scan')} />
+                <Action.Push
+                  title="Enter a Setup Key"
+                  icon={Icon.Keyboard}
+                  shortcut={{ modifiers: ['cmd'], key: 'enter' }}
+                  target={<SetupKey onSubmit={handleFormSubmit} />}
+                />
+                <Action
+                  title="Select a QR Code"
+                  icon={Icon.Camera}
+                  shortcut={{ modifiers: ['cmd'], key: 'i' }}
+                  onAction={() => scanQRCode('select')}
+                />
+              </ActionPanel>
+            }
+          />
+        </List.Section>
+      )}
     </List>
   );
 };
