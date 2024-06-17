@@ -86,13 +86,13 @@ export function sortByPrio<T extends { prio?: number }>(a: T, b: T) {
 }
 
 export function getPrioColor(prio: number) {
-  if (prio > 0) return config.prio.color.positive;
-  if (prio < 0) return config.prio.color.negative;
+  if (prio > 0) return config.colors.prio.positive;
+  if (prio < 0) return config.colors.prio.negative;
 }
 
 export function getPrioIcon(prio: number) {
-  if (prio > 0) return { source: Icon.ChevronUp, tintColor: config.prio.color.positive };
-  if (prio < 0) return { source: Icon.ChevronDown, tintColor: config.prio.color.negative };
+  if (prio > 0) return { source: Icon.ChevronUp, tintColor: config.colors.prio.positive };
+  if (prio < 0) return { source: Icon.ChevronDown, tintColor: config.colors.prio.negative };
 }
 
 export function getPrioTag(prio?: number): ItemAccessory {

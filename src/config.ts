@@ -1,8 +1,15 @@
+const theme = {
+  grey: '#909090',
+  green: '#288056',
+  red: '#802828',
+}
+
 export const config = {
-  prio: {
-    color: {
-      positive: '#050505', // '#288056',
-      negative: '#050505', // '#802828',
+  colors: {
+    key: theme.grey,
+    prio: {
+      positive: theme.grey, // theme.green,
+      negative: theme.grey, // theme.red,
     },
   },
 };
