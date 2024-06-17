@@ -21,6 +21,7 @@ import * as store from './store';
 import { readDataFromQRCodeOnScreen, getCurrentSeconds, splitStrToParts, ScanType, parseUrl } from './utils';
 import { TOKEN_TIME, generateToken } from './totp';
 import { extractAccountsFromMigrationUrl } from './google-authenticator';
+import type { ItemAccessory } from './types';
 
 type Preferences = {
   passwordVisibility?: boolean;
@@ -159,6 +160,27 @@ export default () => {
     return () => clearInterval(interval);
   }, []);
 
+  const positiveColor = '#050505'; // '#288056';
+  const negativeColor = '#050505'; // '#802828';
+  const getPrioColor = (prio: number) => {
+    if (prio > 0) return positiveColor;
+    if (prio < 0) return negativeColor;
+  };
+
+  const getPrioIcon = (prio: number) => {
+    if (prio > 0) return { source: Icon.ChevronUp, tintColor: positiveColor };
+    if (prio < 0) return { source: Icon.ChevronDown, tintColor: negativeColor };
+  };
+
+  const getPrioTag = (prio?: number): ItemAccessory => {
+    if (!prio) return {};
+    return {
+      tag: { value: Math.abs(prio).toString(), color: getPrioColor(prio) },
+      icon: getPrioIcon(prio),
+      tooltip: `Priority: ${prio}`,
+    };
+  };
+
   return (
     <List isLoading={loading}>
       <List.Section title="Accounts">
@@ -169,12 +191,12 @@ export default () => {
             subtitle={displayToken(account.secret)}
             keywords={[account.issuer ?? '', account.name]}
             accessories={[
-              account.prio !== undefined ? { tag: account.prio.toString() } : {},
+              getPrioTag(account.prio),
               account.issuer ? { tag: account.issuer } : {},
               {
                 icon: { source: getProgressIcon(timer / TOKEN_TIME), tintColor: getProgressColor() },
                 text: `${timer}s`,
-              },
+                },
             ]}
             actions={
               <ActionPanel>
