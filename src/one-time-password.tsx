@@ -16,12 +16,13 @@ import {
 } from '@raycast/api';
 import { useEffect, useState } from 'react';
 import { getProgressIcon } from '@raycast/utils';
+import { z } from 'zod';
 import * as store from './store';
 import { readDataFromQRCodeOnScreen, getCurrentSeconds, splitStrToParts, ScanType, parseUrl } from './utils';
 import { TOKEN_TIME, generateToken } from './totp';
 import { extractAccountsFromMigrationUrl } from './google-authenticator';
 
-// P3: alias, search by alias
+// P3: order by prio
 
 type Preferences = {
   passwordVisibility?: boolean;
@@ -170,6 +171,7 @@ export default () => {
             subtitle={displayToken(account.secret)}
             keywords={[account.issuer ?? '', account.name]}
             accessories={[
+              account.prio !== undefined ? { tag: account.prio.toString() } : {},
               account.issuer ? { tag: account.issuer } : {},
               {
                 icon: { source: getProgressIcon(timer / TOKEN_TIME), tintColor: getProgressColor() },
@@ -185,7 +187,13 @@ export default () => {
                   shortcut={{ modifiers: ['cmd'], key: 'e' }}
                   icon={Icon.Pencil}
                   target={
-                    <SetupKey id={account.id} name={account.name} secret={account.secret} onSubmit={handleFormSubmit} />
+                    <SetupKey
+                      id={account.id}
+                      name={account.name}
+                      secret={account.secret}
+                      prio={account.prio?.toString()}
+                      onSubmit={handleFormSubmit}
+                    />
                   }
                 />
                 <Action
@@ -261,20 +269,37 @@ type SetupKeyProps = {
   id?: string;
   name?: string;
   secret?: string;
+  prio?: string;
 };
+
+const Prio = z.coerce.number().optional();
+
+function validatePrio(prev?: string, newPrio?: string) {
+  if (newPrio === undefined || newPrio === '') return undefined;
+
+  const prio = Prio.safeParse(newPrio);
+  if (prio.success) return prio.data?.toString();
+  return prev;
+}
 
 function SetupKey(props: SetupKeyProps) {
   const [name, setName] = useState(props.name ?? '');
   const [secret, setSecret] = useState(props.secret ?? '');
+  const [prioText, setPrio] = useState(props.prio ?? '');
 
   async function handleSubmit() {
-    if (props.id) {
-      await store.updateAccount(props.id, { name, secret });
-    } else {
-      await store.addAccount({ name, secret });
-    }
+    const validPrio = validatePrio(props.prio, prioText);
+    setPrio(validPrio ?? '');
+
+    const prio = Prio.parse(validPrio);
+    if (props.id) await store.updateAccount(props.id, { name, secret, prio });
+    else await store.addAccount({ name, secret, prio });
+
     props.onSubmit();
   }
+
+  const handlePrioBlur = () => setPrio((prev) => validatePrio(props.prio, prev) ?? '');
+
   return (
     <Form
       actions={
@@ -285,6 +310,7 @@ function SetupKey(props: SetupKeyProps) {
     >
       <Form.TextField id="name" title="Name" value={name} onChange={setName} />
       <Form.TextField id="secret" title="Secret" value={secret} onChange={setSecret} />
+      <Form.TextField id="prio" title="Priority" value={prioText} onChange={setPrio} onBlur={handlePrioBlur} />
     </Form>
   );
 }

@@ -8,6 +8,7 @@ export type Account = {
   issuer?: string;
   secret: string;
   token?: string;
+  prio?: number;
 };
 
 type AccountWithoutId = Omit<Account, 'id'>;
@@ -61,5 +62,6 @@ export async function updateAccount(id: string, account: AccountWithoutId) {
   if (!accountFound) return;
   accountFound.name = account.name;
   accountFound.secret = account.secret;
+  accountFound.prio = account.prio;
   await save(accounts);
 }

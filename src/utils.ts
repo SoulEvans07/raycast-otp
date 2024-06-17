@@ -76,3 +76,7 @@ export function parseUrl<T extends string>(url: string) {
 export function isGoogleAuthenticatorMigration(str?: string) {
   return str?.startsWith('otpauth-migration://');
 }
+
+export function sortByPrio<T extends { prio?: number }>(a: T, b: T) {
+  return (b.prio ?? 0) - (a.prio ?? 0);
+}
