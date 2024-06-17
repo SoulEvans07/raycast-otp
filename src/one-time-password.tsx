@@ -21,7 +21,6 @@ import { readDataFromQRCodeOnScreen, getCurrentSeconds, splitStrToParts, ScanTyp
 import { TOKEN_TIME, generateToken } from './totp';
 import { extractAccountsFromMigrationUrl } from './google-authenticator';
 
-// P0: insert to focused input
 // P3: alias, search by alias
 
 type Preferences = {
@@ -180,8 +179,10 @@ export default () => {
             actions={
               <ActionPanel>
                 <Action.CopyToClipboard content={getCopyToClipboardContent(account.secret)} />
+                <Action.Paste content={getCopyToClipboardContent(account.secret)} />
                 <Action.Push
                   title="Edit Account"
+                  shortcut={{ modifiers: ['cmd'], key: 'e' }}
                   icon={Icon.Pencil}
                   target={
                     <SetupKey id={account.id} name={account.name} secret={account.secret} onSubmit={handleFormSubmit} />
